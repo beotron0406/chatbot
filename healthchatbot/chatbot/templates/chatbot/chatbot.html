@@ -38,6 +38,7 @@
             color: white;
             padding: 20px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -49,6 +50,69 @@
         .header p {
             margin: 5px 0 0 0;
             opacity: 0.9;
+        }
+
+        .tts-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .tts-toggle {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tts-toggle:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .tts-toggle.active {
+            background: rgba(255,255,255,0.9);
+            color: var(--primary-color);
+        }
+
+        .tts-settings {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .tts-settings.show {
+            display: block;
+        }
+
+        .tts-setting-group {
+            margin-bottom: 8px;
+        }
+
+        .tts-setting-group label {
+            display: block;
+            font-size: 12px;
+            margin-bottom: 2px;
+            opacity: 0.9;
+        }
+
+        .tts-setting-group select,
+        .tts-setting-group input {
+            width: 100%;
+            padding: 4px 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 12px;
         }
 
         .chat-container {
@@ -92,6 +156,39 @@
             font-size: 0.75rem;
             opacity: 0.7;
             margin-top: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .speak-btn {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            font-size: 12px;
+        }
+
+        .speak-btn:hover {
+            background: rgba(0,0,0,0.1);
+            color: var(--primary-color);
+        }
+
+        .speak-btn.speaking {
+            color: var(--success-color);
+            animation: pulse 1s infinite;
+        }
+
+        .speak-btn.paused {
+            color: var(--warning-color);
         }
 
         .input-section {
@@ -226,6 +323,20 @@
             font-size: 0.9rem;
         }
 
+        .tts-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -234,6 +345,16 @@
         @keyframes typing {
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
         }
 
         .collapsible-section {
@@ -294,6 +415,14 @@
             .stats-cards {
                 grid-template-columns: repeat(2, 1fr);
             }
+
+            .tts-controls {
+                position: relative;
+                top: auto;
+                right: auto;
+                justify-content: center;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -305,6 +434,33 @@
             <div class="header">
                 <h1><i class="fas fa-robot"></i> Healthcare Chatbot</h1>
                 <p>Tư vấn thông tin y tế thông minh - Luôn tham khảo ý kiến bác sĩ</p>
+                
+                <!-- TTS Controls -->
+                <div class="tts-controls">
+                    <button class="tts-toggle" id="ttsToggle" title="Bật/tắt đọc tin nhắn">
+                        <i class="fas fa-volume-up"></i>
+                        <span id="ttsToggleText">TTS</span>
+                    </button>
+                    <button class="btn btn-sm" id="ttsSettingsBtn" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white;" title="Cài đặt giọng nói">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+
+                <!-- TTS Settings Panel -->
+                <div class="tts-settings" id="ttsSettings">
+                    <div class="tts-setting-group">
+                        <label for="voiceSelect">Giọng nói:</label>
+                        <select id="voiceSelect"></select>
+                    </div>
+                    <div class="tts-setting-group">
+                        <label for="rateSlider">Tốc độ: <span id="rateValue">1</span></label>
+                        <input type="range" id="rateSlider" min="0.5" max="2" step="0.1" value="1">
+                    </div>
+                    <div class="tts-setting-group">
+                        <label for="pitchSlider">Giọng điệu: <span id="pitchValue">1</span></label>
+                        <input type="range" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+                    </div>
+                </div>
             </div>
 
             <!-- Chat Section -->
@@ -320,7 +476,12 @@
                         </ul>
                         <em>⚠️ Lưu ý: Thông tin chỉ mang tính tham khảo. Vui lòng tham khảo ý kiến bác sĩ cho chẩn đoán chính xác.</em>
                         <div class="message-time">
-                            <i class="fas fa-clock"></i> <span id="botTime"></span>
+                            <span><i class="fas fa-clock"></i> <span id="botTime"></span></span>
+                            <div class="message-actions">
+                                <button class="speak-btn" onclick="speakMessage(this)" title="Đọc tin nhắn">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -454,6 +615,12 @@ https://nhathuoclongchau.com.vn/bai-viet/cac-benh-truyen-nhiem-thuong-gap.html">
         </div>
     </div>
 
+    <!-- TTS Notification -->
+    <div class="tts-notification" id="ttsNotification">
+        <i class="fas fa-volume-up"></i>
+        <span id="ttsNotificationText">Đang đọc tin nhắn...</span>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let sessionId = null;
@@ -462,12 +629,324 @@ https://nhathuoclongchau.com.vn/bai-viet/cac-benh-truyen-nhiem-thuong-gap.html">
         const sendBtn = document.getElementById('sendBtn');
         const typingIndicator = document.getElementById('typingIndicator');
 
+        // TTS Variables
+        let ttsEnabled = false;
+        let voices = [];
+        let selectedVoice = null;
+        let speechRate = 1;
+        let speechPitch = 1;
+        let currentSpeech = null;
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
             updateTime();
             loadStats();
             userInput.focus();
+            initializeTTS();
         });
+
+        // TTS Functions
+        function initializeTTS() {
+            if ('speechSynthesis' in window) {
+                // Load voices
+                loadVoices();
+                
+                // Voice change event
+                speechSynthesis.onvoiceschanged = loadVoices;
+                
+                // TTS Toggle
+                document.getElementById('ttsToggle').addEventListener('click', toggleTTS);
+                
+                // TTS Settings
+                document.getElementById('ttsSettingsBtn').addEventListener('click', toggleTTSSettings);
+                
+                // Voice select
+                document.getElementById('voiceSelect').addEventListener('change', function() {
+                    const selectedIndex = this.value;
+                    selectedVoice = voices[selectedIndex];
+                    saveSettings();
+                });
+                
+                // Rate slider
+                document.getElementById('rateSlider').addEventListener('input', function() {
+                    speechRate = parseFloat(this.value);
+                    document.getElementById('rateValue').textContent = speechRate;
+                    saveSettings();
+                });
+                
+                // Pitch slider
+                document.getElementById('pitchSlider').addEventListener('input', function() {
+                    speechPitch = parseFloat(this.value);
+                    document.getElementById('pitchValue').textContent = speechPitch;
+                    saveSettings();
+                });
+                
+                // Load saved settings
+                loadSettings();
+            } else {
+                console.warn('Text-to-Speech not supported in this browser');
+                document.getElementById('ttsToggle').style.display = 'none';
+                document.getElementById('ttsSettingsBtn').style.display = 'none';
+            }
+        }
+
+        function loadVoices() {
+            voices = speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('voiceSelect');
+            voiceSelect.innerHTML = '';
+            
+            // Filter Vietnamese voices or add fallback
+            const vietnameseVoices = voices.filter(voice => 
+                voice.lang.includes('vi') || 
+                voice.name.toLowerCase().includes('vietnamese') ||
+                voice.name.toLowerCase().includes('vietnam')
+            );
+            
+            // If no Vietnamese voices, use English voices as fallback
+            const availableVoices = vietnameseVoices.length > 0 ? vietnameseVoices : voices;
+            
+            availableVoices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = voices.indexOf(voice);
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+            
+            // Set default voice (prefer Vietnamese)
+            if (vietnameseVoices.length > 0) {
+                selectedVoice = vietnameseVoices[0];
+                voiceSelect.value = voices.indexOf(vietnameseVoices[0]);
+            } else if (voices.length > 0) {
+                selectedVoice = voices[0];
+                voiceSelect.value = 0;
+            }
+        }
+
+        function toggleTTS() {
+            ttsEnabled = !ttsEnabled;
+            const toggle = document.getElementById('ttsToggle');
+            const toggleText = document.getElementById('ttsToggleText');
+            
+            if (ttsEnabled) {
+                toggle.classList.add('active');
+                toggleText.textContent = 'ON';
+                showTTSNotification('Đã bật chế độ đọc tin nhắn');
+            } else {
+                toggle.classList.remove('active');
+                toggleText.textContent = 'OFF';
+                stopSpeaking();
+                showTTSNotification('Đã tắt chế độ đọc tin nhắn');
+            }
+            
+            saveSettings();
+        }
+
+        function toggleTTSSettings() {
+            const settings = document.getElementById('ttsSettings');
+            settings.classList.toggle('show');
+        }
+
+        function speakMessage(button) {
+            const messageElement = button.closest('.message');
+            const messageText = extractTextFromMessage(messageElement);
+            
+            if (currentSpeech && currentSpeech.speaking) {
+                stopSpeaking();
+                return;
+            }
+            
+            speakText(messageText, button);
+        }
+
+        function speakText(text, button = null) {
+            if (!('speechSynthesis' in window)) {
+                showTTSNotification('Trình duyệt không hỗ trợ Text-to-Speech');
+                return;
+            }
+
+            // Stop any current speech
+            stopSpeaking();
+            
+            // Clean text for better pronunciation
+            const cleanText = cleanTextForSpeech(text);
+            
+            currentSpeech = new SpeechSynthesisUtterance(cleanText);
+            
+            // Set voice and parameters
+            if (selectedVoice) {
+                currentSpeech.voice = selectedVoice;
+            }
+            currentSpeech.rate = speechRate;
+            currentSpeech.pitch = speechPitch;
+            currentSpeech.volume = 1;
+            
+            // Event handlers
+            currentSpeech.onstart = function() {
+                if (button) {
+                    button.classList.add('speaking');
+                    button.innerHTML = '<i class="fas fa-stop"></i>';
+                    button.title = 'Dừng đọc';
+                }
+                showTTSNotification('Đang đọc tin nhắn...');
+            };
+            
+            currentSpeech.onend = function() {
+                if (button) {
+                    button.classList.remove('speaking', 'paused');
+                    button.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    button.title = 'Đọc tin nhắn';
+                }
+                hideTTSNotification();
+                currentSpeech = null;
+            };
+            
+            currentSpeech.onerror = function(event) {
+                console.error('Speech synthesis error:', event);
+                if (button) {
+                    button.classList.remove('speaking', 'paused');
+                    button.innerHTML = '<i class="fas fa-volume-up"></i>';
+                    button.title = 'Đọc tin nhắn';
+                }
+                showTTSNotification('Lỗi khi đọc tin nhắn', 'error');
+                currentSpeech = null;
+            };
+            
+            speechSynthesis.speak(currentSpeech);
+        }
+
+        function stopSpeaking() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            
+            // Reset all speak buttons
+            document.querySelectorAll('.speak-btn').forEach(btn => {
+                btn.classList.remove('speaking', 'paused');
+                btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+                btn.title = 'Đọc tin nhắn';
+            });
+            
+            hideTTSNotification();
+            currentSpeech = null;
+        }
+
+        function cleanTextForSpeech(text) {
+            // Remove HTML tags
+            text = text.replace(/<[^>]*>/g, ' ');
+            
+            // Replace markdown-style formatting
+            text = text.replace(/\*\*(.*?)\*\*/g, '$1');
+            text = text.replace(/\*(.*?)\*/g, '$1');
+            
+            // Replace icons and special characters
+            text = text.replace(/🤖|⚠️|✅|❌|📊|🏥|💊|🩺/g, '');
+            
+            // Clean up multiple spaces
+            text = text.replace(/\s+/g, ' ');
+            
+            // Replace common medical abbreviations with full words
+            const replacements = {
+                'COVID-19': 'cô vít mười chín',
+                'HIV': 'H I V',
+                'AIDS': 'A I D S',
+                'CT': 'C T',
+                'MRI': 'M R I',
+                'EKG': 'E K G',
+                'ECG': 'E C G',
+                'WHO': 'tổ chức y tế thế giới',
+                'ICU': 'khoa hồi sức cấp cứu'
+            };
+            
+            for (const [abbr, full] of Object.entries(replacements)) {
+                text = text.replace(new RegExp(abbr, 'gi'), full);
+            }
+            
+            return text.trim();
+        }
+
+        function extractTextFromMessage(messageElement) {
+            // Clone element to avoid modifying original
+            const clone = messageElement.cloneNode(true);
+            
+            // Remove time and action elements
+            const timeElement = clone.querySelector('.message-time');
+            if (timeElement) timeElement.remove();
+            
+            const actionsElement = clone.querySelector('.message-actions');
+            if (actionsElement) actionsElement.remove();
+            
+            return clone.textContent || clone.innerText || '';
+        }
+
+        function showTTSNotification(message, type = 'info') {
+            const notification = document.getElementById('ttsNotification');
+            const notificationText = document.getElementById('ttsNotificationText');
+            
+            notificationText.textContent = message;
+            notification.style.display = 'block';
+            
+            if (type === 'error') {
+                notification.style.background = '#dc3545';
+            } else {
+                notification.style.background = '#4a90e2';
+            }
+            
+            // Auto hide after 3 seconds if not speaking
+            setTimeout(() => {
+                if (!currentSpeech || !currentSpeech.speaking) {
+                    hideTTSNotification();
+                }
+            }, 3000);
+        }
+
+        function hideTTSNotification() {
+            const notification = document.getElementById('ttsNotification');
+            notification.style.display = 'none';
+        }
+
+        function saveSettings() {
+            const settings = {
+                ttsEnabled: ttsEnabled,
+                selectedVoiceIndex: selectedVoice ? voices.indexOf(selectedVoice) : 0,
+                speechRate: speechRate,
+                speechPitch: speechPitch
+            };
+            localStorage.setItem('healthchatbot_tts_settings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem('healthchatbot_tts_settings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    
+                    if (settings.ttsEnabled) {
+                        ttsEnabled = true;
+                        document.getElementById('ttsToggle').classList.add('active');
+                        document.getElementById('ttsToggleText').textContent = 'ON';
+                    }
+                    
+                    if (settings.selectedVoiceIndex && voices[settings.selectedVoiceIndex]) {
+                        selectedVoice = voices[settings.selectedVoiceIndex];
+                        document.getElementById('voiceSelect').value = settings.selectedVoiceIndex;
+                    }
+                    
+                    if (settings.speechRate) {
+                        speechRate = settings.speechRate;
+                        document.getElementById('rateSlider').value = speechRate;
+                        document.getElementById('rateValue').textContent = speechRate;
+                    }
+                    
+                    if (settings.speechPitch) {
+                        speechPitch = settings.speechPitch;
+                        document.getElementById('pitchSlider').value = speechPitch;
+                        document.getElementById('pitchValue').textContent = speechPitch;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading TTS settings:', error);
+            }
+        }
 
         function updateTime() {
             const now = new Date();
@@ -539,15 +1018,44 @@ https://nhathuoclongchau.com.vn/bai-viet/cac-benh-truyen-nhiem-thuong-gap.html">
             
             div.innerHTML = formattedMessage;
 
-            // Add timestamp
+            // Add timestamp and actions
             const timeDiv = document.createElement('div');
             timeDiv.classList.add('message-time');
-            timeDiv.innerHTML = `<i class="fas fa-clock"></i> ${new Date().toLocaleTimeString('vi-VN')}`;
+            
+            const timeSpan = document.createElement('span');
+            timeSpan.innerHTML = `<i class="fas fa-clock"></i> ${new Date().toLocaleTimeString('vi-VN')}`;
+            
+            timeDiv.appendChild(timeSpan);
+            
+            // Add speak button for bot messages
+            if (sender === 'bot') {
+                const actionsDiv = document.createElement('div');
+                actionsDiv.classList.add('message-actions');
+                
+                const speakButton = document.createElement('button');
+                speakButton.classList.add('speak-btn');
+                speakButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+                speakButton.title = 'Đọc tin nhắn';
+                speakButton.onclick = function() { speakMessage(this); };
+                
+                actionsDiv.appendChild(speakButton);
+                timeDiv.appendChild(actionsDiv);
+            }
+            
             div.appendChild(timeDiv);
-
             messageContainer.appendChild(div);
             chatContainer.appendChild(messageContainer);
             chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // Auto-speak if TTS is enabled and this is a bot message
+            if (sender === 'bot' && ttsEnabled) {
+                setTimeout(() => {
+                    const speakBtn = messageContainer.querySelector('.speak-btn');
+                    if (speakBtn) {
+                        speakMessage(speakBtn);
+                    }
+                }, 500); // Small delay to let the message render
+            }
         }
 
         function loadStats() {
@@ -719,7 +1227,6 @@ https://nhathuoclongchau.com.vn/bai-viet/cac-benh-truyen-nhiem-thuong-gap.html">
             debugOutput.style.display = 'block';
             debugOutput.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang test extraction...';
 
-            // This would require a test endpoint
             fetch('/api/chatbot/test_extraction/', {
                 method: 'POST',
                 headers: {
@@ -776,6 +1283,13 @@ https://nhathuoclongchau.com.vn/bai-viet/cac-benh-truyen-nhiem-thuong-gap.html">
             }
         });
 
+        // Stop speech when user starts typing
+        userInput.addEventListener('focus', () => {
+            if (currentSpeech && currentSpeech.speaking) {
+                stopSpeaking();
+            }
+        });
+
         document.getElementById('updateBtn').addEventListener('click', () => {
             const urls = document.getElementById('urlInput').value.trim().split('\n').filter(url => url.trim() !== '');
             
@@ -819,6 +1333,13 @@ https://nhathuoclongchau.com.vn/bai-viet/cac-benh-truyen-nhiem-thuong-gap.html">
                 sourcesSection.style.display = 'block';
             } else {
                 sourcesSection.style.display = 'none';
+            }
+        });
+
+        // Cleanup speech on page unload
+        window.addEventListener('beforeunload', () => {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
             }
         });
     </script>
