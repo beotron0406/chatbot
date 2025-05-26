@@ -1,277 +1,506 @@
-<!-- chatbot/templates/chatbot/chatbot.html -->
 <!DOCTYPE html>
 <html lang="vi">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Y tế</title>
+    <title>Healthcare Chatbot - Tư vấn Y tế AI</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        .chat-container {
-            height: 70vh;
-            overflow-y: auto;
-            border: 1px solid #ccc;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            background-color: #f9f9f9;
+        :root {
+            --primary-color: #4a90e2;
+            --secondary-color: #f8f9fa;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --chat-bg: #f8f9fa;
+            --user-msg-bg: #4a90e2;
+            --bot-msg-bg: #ffffff;
         }
 
-        .message {
-            padding: 10px 15px;
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: white;
             border-radius: 15px;
-            margin-bottom: 10px;
-            max-width: 80%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 1200px;
+            overflow: hidden;
         }
 
-        .user-message {
-            background-color: #007bff;
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #357abd);
             color: white;
-            margin-left: auto;
+            padding: 20px;
+            text-align: center;
         }
 
-        .bot-message {
-            background-color: #e9ecef;
-            color: #212529;
+        .header h1 {
+            margin: 0;
+            font-size: 2rem;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            opacity: 0.9;
+        }
+
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--chat-bg);
+            border-bottom: 1px solid #dee2e6;
         }
 
         .message-container {
             display: flex;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .user-message {
+            background: var(--user-msg-bg);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background: var(--bot-msg-bg);
+            color: #333;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .message-time {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+
+        .input-section {
+            padding: 20px;
+            background: white;
+        }
+
+        .input-group {
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .form-control {
+            border: none;
+            padding: 15px 20px;
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            box-shadow: none;
+            border-color: var(--primary-color);
+        }
+
+        .btn-send {
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 15px 25px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-send:hover {
+            background: #357abd;
+            color: white;
+        }
+
+        .admin-panel {
+            background: var(--secondary-color);
+            padding: 25px;
+            margin-top: 20px;
+            border-radius: 10px;
+        }
+
+        .admin-panel h4 {
+            color: #495057;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+        }
+
+        .url-input {
+            min-height: 100px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+
+        .status-message {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .sources-table {
+            margin-top: 20px;
+        }
+
+        .table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-action {
+            margin: 2px;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .typing-dots {
+            display: flex;
+            align-items: center;
+        }
+
+        .typing-dots span {
+            height: 8px;
+            width: 8px;
+            background: #999;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .collapsible-section {
+            margin-bottom: 20px;
+        }
+
+        .collapsible-header {
+            background: var(--primary-color);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .collapsible-header:hover {
+            background: #357abd;
+        }
+
+        .collapsible-content {
+            display: none;
+            padding: 20px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .debug-info {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .chat-container {
+                height: 400px;
+            }
+            
+            .message {
+                max-width: 85%;
+            }
+            
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
     </style>
 </head>
 
 <body>
-    <div class="container mt-5">
-        <h1 class="text-center mb-4">Chatbot Y tế</h1>
+    <div class="container-fluid">
+        <div class="main-container">
+            <!-- Header -->
+            <div class="header">
+                <h1><i class="fas fa-robot"></i> Healthcare Chatbot</h1>
+                <p>Tư vấn thông tin y tế thông minh - Luôn tham khảo ý kiến bác sĩ</p>
+            </div>
 
-        <div class="chat-container" id="chatContainer">
-            <div class="message-container">
-                <div class="message bot-message">
-                    Xin chào! Tôi là chatbot y tế. Tôi có thể giúp bạn tìm hiểu về các bệnh và triệu chứng.
-                    Bạn có thể hỏi về một bệnh cụ thể hoặc mô tả triệu chứng của bạn.
+            <!-- Chat Section -->
+            <div class="chat-container" id="chatContainer">
+                <div class="message-container">
+                    <div class="message bot-message">
+                        <strong>🤖 Xin chào!</strong><br>
+                        Tôi là chatbot y tế thông minh. Tôi có thể giúp bạn:
+                        <ul style="margin: 10px 0; padding-left: 20px;">
+                            <li>Tìm hiểu về các bệnh và triệu chứng</li>
+                            <li>Cung cấp thông tin về cách phòng ngừa</li>
+                            <li>Tư vấn về vắc-xin và điều trị</li>
+                        </ul>
+                        <em>⚠️ Lưu ý: Thông tin chỉ mang tính tham khảo. Vui lòng tham khảo ý kiến bác sĩ cho chẩn đoán chính xác.</em>
+                        <div class="message-time">
+                            <i class="fas fa-clock"></i> <span id="botTime"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="typing-indicator" id="typingIndicator">
+                    <div class="message bot-message">
+                        <div class="typing-dots">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="input-group">
-            <input type="text" id="userInput" class="form-control" placeholder="Nhập tin nhắn của bạn...">
-            <button class="btn btn-primary" id="sendBtn">Gửi</button>
-        </div>
-        <div class="admin-panel mt-4">
-            <h4>Quản lý nguồn dữ liệu</h4>
-            <div class="mb-3">
-                <label for="urlInput" class="form-label">URL nguồn (mỗi URL một dòng):</label>
-                <textarea id="urlInput" class="form-control" rows="3"
-                    placeholder="https://vnvc.vn/cac-benh-truyen-nhiem-thuong-gap/"></textarea>
-            </div>
-            <div class="row">
-                <div class="col">
-                    <button class="btn btn-success" id="updateBtn">Cập nhật từ URL</button>
+            <!-- Input Section -->
+            <div class="input-section">
+                <div class="input-group">
+                    <input type="text" id="userInput" class="form-control" 
+                           placeholder="Hỏi về triệu chứng, bệnh tật hoặc cách phòng ngừa...">
+                    <button class="btn btn-send" id="sendBtn">
+                        <i class="fas fa-paper-plane"></i> Gửi
+                    </button>
                 </div>
-                <div class="col">
-                    <button class="btn btn-primary" id="showSourcesBtn">Hiển thị nguồn hiện có</button>
+                <div class="text-center mt-2">
+                    <small class="text-muted">
+                        <i class="fas fa-lightbulb"></i> 
+                        Gợi ý: "Triệu chứng cảm cúm", "Cách phòng ngừa COVID-19", "Bệnh tiểu đường"
+                    </small>
                 </div>
             </div>
-            <div id="updateStatus" class="mt-2"></div>
 
-            <div id="sourcesContainer" class="mt-3" style="display: none;">
-                <h5>Nguồn dữ liệu đã lưu</h5>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>URL</th>
-                            <th>Lần cập nhật cuối</th>
-                            <th>Số bệnh</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody id="sourcesTableBody">
-                    </tbody>
-                </table>
+            <!-- Admin Panel -->
+            <div class="admin-panel">
+                <!-- Stats Section -->
+                <div class="collapsible-section">
+                    <button class="collapsible-header" onclick="toggleSection('statsSection')">
+                        <i class="fas fa-chart-bar"></i> Thống kê Knowledge Base
+                    </button>
+                    <div class="collapsible-content" id="statsSection">
+                        <div class="stats-cards" id="statsCards">
+                            <!-- Stats will be loaded here -->
+                        </div>
+                        <button class="btn btn-outline-primary btn-sm" onclick="loadStats()">
+                            <i class="fas fa-sync"></i> Làm mới thống kê
+                        </button>
+                    </div>
+                </div>
+
+                <!-- URL Management Section -->
+                <div class="collapsible-section">
+                    <button class="collapsible-header" onclick="toggleSection('urlSection')">
+                        <i class="fas fa-link"></i> Quản lý nguồn dữ liệu
+                    </button>
+                    <div class="collapsible-content" id="urlSection">
+                        <div class="mb-3">
+                            <label for="urlInput" class="form-label">
+                                <i class="fas fa-globe"></i> URL nguồn dữ liệu (mỗi URL một dòng):
+                            </label>
+                            <textarea id="urlInput" class="form-control url-input" rows="4"
+                                placeholder="https://vnvc.vn/cac-benh-truyen-nhiem-thuong-gap/
+https://www.vinmec.com/vi/bai-viet/cac-benh-truyen-nhiem-thuong-gap-175
+https://nhathuoclongchau.com.vn/bai-viet/cac-benh-truyen-nhiem-thuong-gap.html"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button class="btn btn-success w-100" id="updateBtn">
+                                    <i class="fas fa-download"></i> Cập nhật từ URL
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <button class="btn btn-primary w-100" id="showSourcesBtn">
+                                    <i class="fas fa-list"></i> Hiển thị nguồn hiện có
+                                </button>
+                            </div>
+                        </div>
+                        <div id="updateStatus"></div>
+                    </div>
+                </div>
+
+                <!-- Sources List Section -->
+                <div class="collapsible-section">
+                    <button class="collapsible-header" onclick="toggleSection('sourcesSection')">
+                        <i class="fas fa-database"></i> Danh sách nguồn đã lưu
+                    </button>
+                    <div class="collapsible-content" id="sourcesSection" style="display: none;">
+                        <div id="sourcesContainer">
+                            <div class="table-responsive">
+                                <table class="table table-striped">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th><i class="fas fa-link"></i> URL</th>
+                                            <th><i class="fas fa-clock"></i> Cập nhật cuối</th>
+                                            <th><i class="fas fa-hashtag"></i> Số bệnh</th>
+                                            <th><i class="fas fa-toggle-on"></i> Trạng thái</th>
+                                            <th><i class="fas fa-cogs"></i> Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="sourcesTableBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center">
+                                                <i class="fas fa-spinner fa-spin"></i> Đang tải...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Debug Section -->
+                <div class="collapsible-section">
+                    <button class="collapsible-header" onclick="toggleSection('debugSection')">
+                        <i class="fas fa-bug"></i> Debug & Test
+                    </button>
+                    <div class="collapsible-content" id="debugSection">
+                        <div class="mb-3">
+                            <label for="testUrl" class="form-label">Test URL extraction:</label>
+                            <div class="input-group">
+                                <input type="url" id="testUrl" class="form-control" 
+                                       placeholder="https://example.com/health-article">
+                                <button class="btn btn-warning" onclick="testUrlExtraction()">
+                                    <i class="fas fa-test-tube"></i> Test
+                                </button>
+                            </div>
+                        </div>
+                        <div id="debugOutput" class="debug-info" style="display: none;"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let sessionId = null;
         const chatContainer = document.getElementById('chatContainer');
         const userInput = document.getElementById('userInput');
         const sendBtn = document.getElementById('sendBtn');
-        // Xử lý hiển thị nguồn dữ liệu
-        const showSourcesBtn = document.getElementById('showSourcesBtn');
-        const sourcesContainer = document.getElementById('sourcesContainer');
-        const sourcesTableBody = document.getElementById('sourcesTableBody');
+        const typingIndicator = document.getElementById('typingIndicator');
 
-        // Xử lý cập nhật từ URL
-        const updateBtn = document.getElementById('updateBtn');
-        updateBtn.addEventListener('click', () => {
-            const urls = urlInput.value.trim().split('\n').filter(url => url.trim() !== '');
-
-            if (urls.length === 0) {
-                updateStatus.innerHTML = '<div class="alert alert-warning">Vui lòng nhập ít nhất một URL</div>';
-                return;
-            }
-
-            updateStatus.innerHTML = '<div class="alert alert-info">Đang cập nhật knowledge base...</div>';
-
-            fetch('/api/chatbot/update_knowledge/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    urls: urls
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateStatus.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                        // Sau khi cập nhật, tải lại danh sách nguồn
-                        loadSources();
-                    } else {
-                        updateStatus.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    updateStatus.innerHTML = '<div class="alert alert-danger">Đã xảy ra lỗi khi cập nhật knowledge base</div>';
-                });
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateTime();
+            loadStats();
+            userInput.focus();
         });
 
-        // Hiển thị/ẩn bảng nguồn dữ liệu
-        showSourcesBtn.addEventListener('click', () => {
-            if (sourcesContainer.style.display === 'none') {
-                loadSources();
-                sourcesContainer.style.display = 'block';
-                showSourcesBtn.textContent = 'Ẩn nguồn hiện có';
-            } else {
-                sourcesContainer.style.display = 'none';
-                showSourcesBtn.textContent = 'Hiển thị nguồn hiện có';
-            }
-        });
-
-        // Tải danh sách nguồn dữ liệu
-        function loadSources() {
-            fetch('/api/sources/')
-                .then(response => response.json())
-                .then(data => {
-                    sourcesTableBody.innerHTML = '';
-
-                    data.forEach(source => {
-                        const row = document.createElement('tr');
-
-                        // Cột URL
-                        const urlCell = document.createElement('td');
-                        urlCell.textContent = source.url;
-                        row.appendChild(urlCell);
-
-                        // Cột lần cập nhật cuối
-                        const lastUpdatedCell = document.createElement('td');
-                        lastUpdatedCell.textContent = source.last_updated ? new Date(source.last_updated).toLocaleString() : 'Chưa cập nhật';
-                        row.appendChild(lastUpdatedCell);
-
-                        // Cột số bệnh
-                        const countCell = document.createElement('td');
-                        countCell.textContent = source.success_count;
-                        row.appendChild(countCell);
-
-                        // Cột hành động
-                        const actionCell = document.createElement('td');
-                        const updateBtn = document.createElement('button');
-                        updateBtn.className = 'btn btn-sm btn-primary me-2';
-                        updateBtn.textContent = 'Cập nhật';
-                        updateBtn.addEventListener('click', () => updateSource(source.url));
-
-                        const deleteBtn = document.createElement('button');
-                        deleteBtn.className = 'btn btn-sm btn-danger';
-                        deleteBtn.textContent = 'Xóa';
-                        deleteBtn.addEventListener('click', () => deleteSource(source.url));
-
-                        actionCell.appendChild(updateBtn);
-                        actionCell.appendChild(deleteBtn);
-                        row.appendChild(actionCell);
-
-                        sourcesTableBody.appendChild(row);
-                    });
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    sourcesTableBody.innerHTML = '<tr><td colspan="4" class="text-center">Lỗi khi tải danh sách nguồn</td></tr>';
-                });
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('botTime').textContent = now.toLocaleTimeString('vi-VN');
         }
 
-        // Cập nhật từ một nguồn cụ thể
-        function updateSource(url) {
-            fetch('/api/chatbot/update_knowledge/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    urls: [url]
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateStatus.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                        loadSources();
-                    } else {
-                        updateStatus.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    updateStatus.innerHTML = '<div class="alert alert-danger">Đã xảy ra lỗi khi cập nhật từ nguồn</div>';
-                });
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const isVisible = section.style.display !== 'none';
+            section.style.display = isVisible ? 'none' : 'block';
         }
 
-        // Xóa một nguồn
-        function deleteSource(url) {
-            if (!confirm(`Bạn có chắc chắn muốn xóa nguồn "${url}"?`)) {
-                return;
-            }
-
-            fetch('/api/sources/delete/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    url: url
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateStatus.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
-                        loadSources();
-                    } else {
-                        updateStatus.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    updateStatus.innerHTML = '<div class="alert alert-danger">Đã xảy ra lỗi khi xóa nguồn</div>';
-                });
+        function showTyping() {
+            typingIndicator.style.display = 'flex';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
         }
-        // Xử lý gửi tin nhắn
+
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+
         function sendMessage() {
             const message = userInput.value.trim();
             if (!message) return;
 
-            // Hiển thị tin nhắn người dùng
+            // Show user message
             addMessage(message, 'user');
             userInput.value = '';
 
-            // Gửi tin nhắn đến API
+            // Show typing indicator
+            showTyping();
+
+            // Send to API
             fetch('/api/chatbot/message/', {
                 method: 'POST',
                 headers: {
@@ -283,18 +512,19 @@
                     session_id: sessionId
                 })
             })
-                .then(response => response.json())
-                .then(data => {
-                    sessionId = data.session_id;
-                    addMessage(data.response, 'bot');
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    addMessage('Xin lỗi, đã xảy ra lỗi khi xử lý tin nhắn của bạn.', 'bot');
-                });
+            .then(response => response.json())
+            .then(data => {
+                hideTyping();
+                sessionId = data.session_id;
+                addMessage(data.response, 'bot');
+            })
+            .catch(error => {
+                hideTyping();
+                console.error('Error:', error);
+                addMessage('Xin lỗi, đã xảy ra lỗi khi xử lý tin nhắn của bạn. Vui lòng thử lại.', 'bot');
+            });
         }
 
-        // Thêm tin nhắn vào chat container
         function addMessage(message, sender) {
             const messageContainer = document.createElement('div');
             messageContainer.classList.add('message-container');
@@ -303,15 +533,226 @@
             div.classList.add('message');
             div.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
 
-            // Hỗ trợ xuống dòng trong tin nhắn
-            div.innerHTML = message.replace(/\n/g, '<br>');
+            // Format message with markdown-like formatting
+            let formattedMessage = message.replace(/\n/g, '<br>');
+            formattedMessage = formattedMessage.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            
+            div.innerHTML = formattedMessage;
+
+            // Add timestamp
+            const timeDiv = document.createElement('div');
+            timeDiv.classList.add('message-time');
+            timeDiv.innerHTML = `<i class="fas fa-clock"></i> ${new Date().toLocaleTimeString('vi-VN')}`;
+            div.appendChild(timeDiv);
 
             messageContainer.appendChild(div);
             chatContainer.appendChild(messageContainer);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
 
-        // Lấy CSRF token từ cookie
+        function loadStats() {
+            fetch('/api/chatbot/stats/')
+            .then(response => response.json())
+            .then(data => {
+                const statsCards = document.getElementById('statsCards');
+                statsCards.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-number">${data.total_diseases || 0}</div>
+                        <div class="stat-label">Bệnh</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.total_symptoms || 0}</div>
+                        <div class="stat-label">Triệu chứng</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.total_sessions || 0}</div>
+                        <div class="stat-label">Phiên chat</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${data.active_sources || 0}</div>
+                        <div class="stat-label">Nguồn hoạt động</div>
+                    </div>
+                `;
+            })
+            .catch(error => {
+                console.error('Error loading stats:', error);
+            });
+        }
+
+        function loadSources() {
+            fetch('/api/sources/')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.getElementById('sourcesTableBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">Chưa có nguồn nào</td></tr>';
+                    return;
+                }
+
+                data.forEach(source => {
+                    const row = document.createElement('tr');
+                    
+                    const shortUrl = source.url.length > 50 ? source.url.substring(0, 50) + '...' : source.url;
+                    const lastUpdated = source.last_updated ? 
+                        new Date(source.last_updated).toLocaleString('vi-VN') : 
+                        'Chưa cập nhật';
+                    const statusBadge = source.active ? 
+                        '<span class="badge bg-success">Hoạt động</span>' : 
+                        '<span class="badge bg-secondary">Tạm dừng</span>';
+
+                    row.innerHTML = `
+                        <td title="${source.url}">${shortUrl}</td>
+                        <td>${lastUpdated}</td>
+                        <td><span class="badge bg-primary">${source.success_count}</span></td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary btn-action" onclick="updateSource('${source.url}')">
+                                <i class="fas fa-sync"></i>
+                            </button>
+                            <button class="btn btn-sm btn-warning btn-action" onclick="toggleSource('${source.url}')">
+                                <i class="fas fa-toggle-${source.active ? 'on' : 'off'}"></i>
+                            </button>
+                            <button class="btn btn-sm btn-danger btn-action" onclick="deleteSource('${source.url}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading sources:', error);
+                document.getElementById('sourcesTableBody').innerHTML = 
+                    '<tr><td colspan="5" class="text-center text-danger">Lỗi khi tải danh sách nguồn</td></tr>';
+            });
+        }
+
+        function updateSource(url) {
+            showUpdateStatus('info', 'Đang cập nhật từ nguồn...');
+            
+            fetch('/api/chatbot/update_knowledge/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ urls: [url] })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showUpdateStatus('success', data.message);
+                    loadSources();
+                    loadStats();
+                } else {
+                    showUpdateStatus('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showUpdateStatus('danger', 'Đã xảy ra lỗi khi cập nhật từ nguồn');
+            });
+        }
+
+        function deleteSource(url) {
+            if (!confirm(`Bạn có chắc chắn muốn xóa nguồn "${url}"?`)) {
+                return;
+            }
+
+            fetch('/api/sources/delete/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showUpdateStatus('success', data.message);
+                    loadSources();
+                } else {
+                    showUpdateStatus('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showUpdateStatus('danger', 'Đã xảy ra lỗi khi xóa nguồn');
+            });
+        }
+
+        function toggleSource(url) {
+            fetch('/api/sources/toggle_active/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showUpdateStatus('info', data.message);
+                    loadSources();
+                } else {
+                    showUpdateStatus('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showUpdateStatus('danger', 'Đã xảy ra lỗi khi thay đổi trạng thái nguồn');
+            });
+        }
+
+        function testUrlExtraction() {
+            const testUrl = document.getElementById('testUrl').value.trim();
+            if (!testUrl) {
+                alert('Vui lòng nhập URL để test');
+                return;
+            }
+
+            const debugOutput = document.getElementById('debugOutput');
+            debugOutput.style.display = 'block';
+            debugOutput.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang test extraction...';
+
+            // This would require a test endpoint
+            fetch('/api/chatbot/test_extraction/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ url: testUrl })
+            })
+            .then(response => response.json())
+            .then(data => {
+                debugOutput.innerHTML = `
+                    <strong>URL:</strong> ${testUrl}<br>
+                    <strong>Status:</strong> ${data.success ? 'Success' : 'Failed'}<br>
+                    <strong>Diseases found:</strong> ${data.diseases_count || 0}<br>
+                    <strong>Details:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            })
+            .catch(error => {
+                debugOutput.innerHTML = `<strong>Error:</strong> ${error.message}`;
+            });
+        }
+
+        function showUpdateStatus(type, message) {
+            const statusDiv = document.getElementById('updateStatus');
+            statusDiv.innerHTML = `<div class="alert alert-${type} mt-3">${message}</div>`;
+            
+            // Auto hide after 5 seconds
+            setTimeout(() => {
+                statusDiv.innerHTML = '';
+            }, 5000);
+        }
+
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -327,7 +768,7 @@
             return cookieValue;
         }
 
-        // Thêm event listeners
+        // Event listeners
         sendBtn.addEventListener('click', sendMessage);
         userInput.addEventListener('keypress', event => {
             if (event.key === 'Enter') {
@@ -335,7 +776,51 @@
             }
         });
 
+        document.getElementById('updateBtn').addEventListener('click', () => {
+            const urls = document.getElementById('urlInput').value.trim().split('\n').filter(url => url.trim() !== '');
+            
+            if (urls.length === 0) {
+                showUpdateStatus('warning', 'Vui lòng nhập ít nhất một URL');
+                return;
+            }
+
+            showUpdateStatus('info', 'Đang cập nhật knowledge base...');
+
+            fetch('/api/chatbot/update_knowledge/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ urls: urls })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showUpdateStatus('success', data.message);
+                    loadSources();
+                    loadStats();
+                } else {
+                    showUpdateStatus('danger', data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showUpdateStatus('danger', 'Đã xảy ra lỗi khi cập nhật knowledge base');
+            });
+        });
+
+        document.getElementById('showSourcesBtn').addEventListener('click', () => {
+            const sourcesSection = document.getElementById('sourcesSection');
+            const isVisible = sourcesSection.style.display !== 'none';
+            
+            if (!isVisible) {
+                loadSources();
+                sourcesSection.style.display = 'block';
+            } else {
+                sourcesSection.style.display = 'none';
+            }
+        });
     </script>
 </body>
-
 </html>
