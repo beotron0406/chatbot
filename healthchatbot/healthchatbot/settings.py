@@ -12,11 +12,13 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'corsheaders',
     'chatbot',
 ]
 
 # Cấu hình middleware cần thiết
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -74,3 +76,51 @@ MEDIA_ROOT = BASE_DIR / 'media'
 ROOT_URLCONF = 'healthchatbot.urls'
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-c8+9zp59x!u7k3yp*8f^$s=0xyy6lm4x8^=nb0b&kj7sj$l_n3'
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",      # React dev server
+    "http://127.0.0.1:3000",      # React dev server alternative
+    "http://localhost:8000",      # Django self
+    "http://127.0.0.1:8000",      # Django self alternative
+]
+
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^http://localhost:\d+$",    # Any localhost port
+    r"^http://127\.0\.0\.1:\d+$", # Any 127.0.0.1 port
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_ALL_ORIGINS = False  # Set to True only for development
+
+# Additional CORS headers
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+
+# Allow all headers (for development)
+CORS_ALLOW_ALL_HEADERS = True
+
+# CSRF Settings
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
