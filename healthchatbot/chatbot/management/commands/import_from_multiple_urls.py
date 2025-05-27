@@ -10,11 +10,10 @@ class Command(BaseCommand):
             'https://www.vinmec.com/vie/bai-viet/10-can-benh-nguy-hiem-nhat-trong-xa-hoi-hien-nay-vi',
             'https://www.vinmec.com/vie/bai-viet/9-benh-pho-bien-do-virus-hoac-vi-khuan-gay-nen-vi',
             'https://nhathuoclongchau.com.vn/bai-viet/cac-benh-truyen-nhiem-thuong-gap.html',
-            'https://www.vinmec.com/vie/bai-viet/danh-muc-cac-benh-truyen-nhiem-thuong-gap-vi'
+            'https://www.vinmec.com/vie/bai-viet/danh-muc-cac-benh-truyen-nhiem-thuong-gap-vi',
             'https://nhathuoclongchau.com.vn/bai-viet/cac-benh-pho-bien-o-viet-nam.html',
             'https://medda.vn/cac-benh-thuong-gap/danh-sach-cac-benh-thuong-gap-o-viet-nam',
             'https://www.minhanhhospital.com.vn/vi/news/tin-tuc-su-kien-minh-anh/7-benh-thuong-gap-mua-thu-va-dong-911.html'
-            # Thêm các URL khác ở đây
         ]
         
         for url in urls:
